@@ -59,7 +59,6 @@ Once your Firebase instance is created, you'll need to enable google account aut
 Goto root project run
 $ flutter run
 5. Play App
-- Add product for Mock Data click setting => Add your product
 - For payment credit card number 4242424242424242 is successful, other is fail
 
 ## Run Unit Test
