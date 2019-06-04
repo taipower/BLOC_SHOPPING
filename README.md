@@ -67,5 +67,5 @@ $ flutter run
 - flutter test
 
 ## Reference
-https://medium.com/flutterpub/when-firebase-meets-bloc-pattern-fb5c405597e0
-https://github.com/SAGARSURI/Goals
+- https://medium.com/flutterpub/when-firebase-meets-bloc-pattern-fb5c405597e0
+- https://github.com/SAGARSURI/Goals
