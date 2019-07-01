@@ -53,4 +53,26 @@
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
+<key>LineSDKConfig</key>
+<dict>
+    <key>ChannelID</key>
+    <!-- Replace "1234567890" with your LINE Channel ID here. -->
+    <string>your line channel id</string>
+</dict>
+<key>CFBundleURLTypes</key>
+<array>
+    <dict>
+        <key>CFBundleTypeRole</key>
+        <string>Editor</string>
+        <key>CFBundleURLSchemes</key>
+        <array>
+            <string>line3rdp.$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+        </array>
+    </dict>
+</array>
+<key>LSApplicationQueriesSchemes</key>
+<array>
+    <string>lineauth</string>
+    <string>line3rdp.$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+</array>
 </plist>
