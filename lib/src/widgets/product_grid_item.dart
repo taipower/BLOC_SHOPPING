@@ -48,12 +48,12 @@ class ProductGridItem extends StatelessWidget{
           ),
         ),
         Text(
-          "X " + product.number.toString(),
-          style: const TextStyle(
-            fontSize: 12.0,
-            color: Colors.white70,
-          ),
-        ),
+              "X " + product.number.toString(),
+              style: const TextStyle(
+              fontSize: 12.0,
+              color: Colors.white70,
+              ),
+            ),
       ],
     );
   }

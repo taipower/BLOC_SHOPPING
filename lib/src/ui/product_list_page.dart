@@ -4,6 +4,9 @@ import 'package:numberpicker/numberpicker.dart';
 import '../utils/utils.dart';
 import 'package:bloc_shopping/src/widgets/product_poster.dart';
 import '../ui/cart_page.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../ui/map_view_page.dart';
 
 class ProductListPage extends StatefulWidget{
   ProductListPage({
@@ -29,11 +32,45 @@ class _ProductListPageState extends State<ProductListPage> {
   List<Product> listProduct;
   List<Product> listStock;
   int indexRef;
+  String _searchAddr = '';
+  final List<LatLng> listLoaction = [];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: buildList(),
+      body: Stack(
+        children: <Widget>[
+          buildList(),
+          Positioned(
+            top: 30.0,
+            right: 15.0,
+            left: 15.0,
+            child: Container(
+              height: 50.0,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10.0),
+                color: Colors.white
+              ),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: 'Enter Address',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.only(left: 15.0,top: 15.0),
+                  suffixIcon: IconButton(
+                    icon: Icon(Icons.search),
+                    onPressed: () => searchandNavigate(context),
+                    iconSize: 30.0,)),
+                onChanged: (val){
+                  setState(() {
+                    _searchAddr = val;
+                  });
+                },
+              ),
+            ),
+          )
+        ]
+      )
     );
   }
 
@@ -124,7 +161,7 @@ class _ProductListPageState extends State<ProductListPage> {
                     left: 16.0,
                     right: 16.0,
                 ),
-                child: _buildTextualInfo(product),
+                child: _buildTextualInfo(context, product, index),
                 ),
               Material(
                 color: Colors.transparent,
@@ -156,7 +193,7 @@ class _ProductListPageState extends State<ProductListPage> {
     );
   }
 
-  Widget _buildTextualInfo(Product product){
+  Widget _buildTextualInfo(BuildContext context, Product product, int index){
     String number = product.number.toString();
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -178,12 +215,12 @@ class _ProductListPageState extends State<ProductListPage> {
           ),
         ),
         Text(
-          "X $number",
-          style: const TextStyle(
-            fontSize: 12.0,
-            color: Colors.white70,
-          ),
-        ),
+              "X " + product.number.toString(),
+              style: const TextStyle(
+              fontSize: 25.0,
+              color: Colors.white70,
+              ),
+            ),
       ],
     );
   }
@@ -220,5 +257,19 @@ class _ProductListPageState extends State<ProductListPage> {
           product.number = 0;
         });
     });
+  }
+
+  searchandNavigate(BuildContext context){
+    Geolocator().placemarkFromAddress(_searchAddr).then((result){
+        LatLng lastPosition = LatLng(result[0].position.latitude, result[0].position.longitude);
+            Navigator.of(context).push(new MaterialPageRoute(
+          builder: (BuildContext context){
+            return new MapViewPage(
+              listProduct: listProduct,
+              lastPosition: lastPosition,
+            );
+          }
+      ));
+      });
   }
 }
