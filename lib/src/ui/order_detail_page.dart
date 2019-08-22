@@ -43,7 +43,7 @@ class _OrderDetailPageState extends State<OrderDetailPage>{
   Widget buildList(AsyncSnapshot<QuerySnapshot> snapshot, BuildContext context) {
     List<Product> listProduct = new List();
     snapshot.data.documents.forEach((doc){
-      Product product = new Product(doc.data["idProduct"], doc.data["name"], doc.data["number"], doc.data["price"], doc.data["imgFile"]);
+      Product product = new Product(doc.data["idProduct"], doc.data["name"], doc.data["number"], doc.data["price"], doc.data["imgFile"], doc.data["latitude"], doc.data["longitude"]);
       listProduct.add(product);
     });
     return Scaffold(

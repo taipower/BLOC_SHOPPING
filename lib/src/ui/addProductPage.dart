@@ -4,15 +4,18 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_native_image/flutter_native_image.dart';
-import 'package:flutter/services.dart' show rootBundle;
-import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:location/location.dart';
+import 'package:flutter/services.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import '../blocs/products_bloc.dart';
+import '../ui/map_product_page.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import '../utils/utils.dart';
 
 class AddProductPage extends StatefulWidget{
   @override
   _AddProductPageState createState() => _AddProductPageState(); 
-
 }
 
 class _AddProductPageState extends State<AddProductPage>{
@@ -21,10 +24,14 @@ class _AddProductPageState extends State<AddProductPage>{
   TextEditingController _textControllerNumber;
   Future<File> _imageFile;
   String _name;
-  int _number;
-  double _price;
+  int _number = 0;
+  double _price = 0.00;
   String _path;
   VoidCallback listener;
+  ProgressDialog pr;
+  LocationData currentLocation;
+  LatLng _lastPosition;
+  LocationData _lastMapPosition;
 
   void _onImageButtonPressed(ImageSource source) {
     setState(() {
@@ -32,20 +39,62 @@ class _AddProductPageState extends State<AddProductPage>{
     });
   }
 
+  Future<LocationData> getCurrentLocation() async {
+    Location location = Location();
+    try {
+      return await location.getLocation();
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        // Permission denied
+      }
+      return null;
+    }
+  }
+
+  _openMap(BuildContext context) async{
+    Location location = Location();
+    try {
+      pr = new ProgressDialog(context, ProgressDialogType.Normal);
+      pr.setMessage("Current Location!");
+      pr.show();
+      _lastMapPosition = await location.getLocation();
+      pr.hide();
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        // Permission denied
+      }
+      return null;
+    }
+
+    final result = await Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => MapProductPage(
+          latitude: _lastMapPosition.latitude,
+          longitude: _lastMapPosition.longitude,
+        ))
+      );
+
+    setState(() {
+      _lastPosition = LatLng(result.latitude,result.longitude);
+    });
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
     _textControllerName = new TextEditingController();
     _textControllerPrice = new TextEditingController();
     _textControllerNumber = new TextEditingController();
+    _lastPosition = LatLng(0.00,0.00);
 
     listener = () {
       setState(() {});
     };
   }
 
-    Widget _previewImage() {
+  Widget _previewImage() {
     return FutureBuilder<File>(
         future: _imageFile,
         builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
@@ -71,18 +120,18 @@ class _AddProductPageState extends State<AddProductPage>{
         });
   }
 
-  Future<Null> uploadFile(String filepath, String fileName) async {
-    final ByteData bytes = await rootBundle.load(filepath);
-    final Directory tempDir = Directory.systemTemp;
-    final File file = await File('${tempDir.path}/$fileName').create();
-    await file.writeAsBytes(bytes.buffer.asInt8List(), mode: FileMode.write);
-
-    ImageProperties properties = await FlutterNativeImage.getImageProperties(file.path);
-    File compressedFile = await FlutterNativeImage.compressImage(file.path, quality: 60,
+  Future<String> uploadFile(String filepath, String fileName) async {
+    ImageProperties properties = await FlutterNativeImage.getImageProperties(filepath);
+    File compressedFile = await FlutterNativeImage.compressImage(filepath, quality: 60,
         targetWidth: 300, targetHeight: 600);
 
     final StorageReference ref = FirebaseStorage.instance.ref().child(fileName);
     final StorageUploadTask task = ref.putFile(compressedFile);
+
+    var dowurl = await (await task.onComplete).ref.getDownloadURL();
+    String url = dowurl.toString();
+
+    return url;
   }
 
   @override
@@ -106,9 +155,9 @@ class _AddProductPageState extends State<AddProductPage>{
                     },
                   ),
                 ),
-                new ListTile(
-                  leading: new Icon(Icons.attach_money, color: Colors.grey[500]),
-                  title: new TextField(
+                ListTile(
+                  leading: Icon(Icons.attach_money, color: Colors.grey[500]),
+                  title: TextField(
                     decoration: new InputDecoration(
                       hintText: 'Price',
                     ),
@@ -119,9 +168,9 @@ class _AddProductPageState extends State<AddProductPage>{
                     },
                   ),
                 ),
-                new ListTile(
-                  leading: new Icon(Icons.content_paste, color: Colors.grey[500]),
-                  title: new TextField(
+                ListTile(
+                  leading: Icon(Icons.content_paste, color: Colors.grey[500]),
+                  title: TextField(
                     decoration: new InputDecoration(
                       hintText: 'Number'
                     ),
@@ -132,6 +181,10 @@ class _AddProductPageState extends State<AddProductPage>{
                     },
                   ),
                 ),
+                ListTile(
+                  leading: Icon(Icons.map, color: Colors.grey[500]),
+                  title: _productLocation(_lastPosition),
+                )
               ],
             ),
             floatingActionButton: Column(
@@ -156,6 +209,17 @@ class _AddProductPageState extends State<AddProductPage>{
                     child: const Icon(Icons.camera_alt),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 16.0),
+                  child: FloatingActionButton(
+                    onPressed: (){
+                      _openMap(context);
+                  },
+                  heroTag: 'map',
+                  tooltip: 'Take a Map',
+                  child: const Icon(Icons.map),
+                  ),
+                ),
               ]
           ),
         );
@@ -171,9 +235,17 @@ class _AddProductPageState extends State<AddProductPage>{
           ProductBloc bloc = new ProductBloc();
           DateTime dateTime = new DateTime.now();
           String fileName = "${dateTime.millisecondsSinceEpoch.toString()}.jpg";
-          uploadFile(_path,fileName);
-          bloc.saveProduct(_name, _number, _price, fileName);
-          Navigator.of(context).pop();
+          String url = ''; 
+          uploadFile(_path,fileName).then((link){
+            url = link;
+
+            if(_validateData(_lastPosition , _name, _number, _price)){
+              bloc.saveProduct(_name, _number, _price, url, _lastPosition.latitude, _lastPosition.longitude);
+              Navigator.of(context).pop();
+            }else{
+              Utils.showAlertDialog(context, "Warning", "Please check product data.", "OK");
+            }
+          });
         },
         child: Text(
           'SAVE',
@@ -185,5 +257,23 @@ class _AddProductPageState extends State<AddProductPage>{
       title: title,
       actions: actions,
     );
+  }
+
+  Widget _productLocation(LatLng lastPosition){
+    if(lastPosition.latitude == 0.00 || lastPosition.longitude == 0.00){
+      return Text("Product Location: Please specify the product location.");
+    }else{
+      return Text("Product Location: ${lastPosition.latitude},${lastPosition.longitude}");
+    }
+  }
+
+  bool _validateData(LatLng location, String name, int number, double price){
+    bool validate = true;
+
+    if(location.latitude == 0.00 || location.longitude == 0.00 || name.isEmpty || number == 0 || price == 0.00){
+      validate = false;
+    }
+
+    return validate;
   }
 }

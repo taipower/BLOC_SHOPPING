@@ -72,8 +72,8 @@ class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin
     String id;
     snapshot.data.documents.forEach((doc){
       id = doc.documentID;
-      productStock = new Product(id, doc.data["name"], doc.data["number"], doc.data["price"], doc.data["imgFile"]);
-      product = new Product(id,doc.data["name"], 0, doc.data["price"], doc.data["imgFile"]);
+      productStock = new Product(id, doc.data["name"], doc.data["number"], doc.data["price"], doc.data["imgFile"], doc.data["latitude"], doc.data["longitude"]);
+      product = new Product(id,doc.data["name"], 0, doc.data["price"], doc.data["imgFile"], doc.data["latitude"], doc.data["longitude"]);
       listStock.add(productStock);
       listProduct.add(product);
     });
