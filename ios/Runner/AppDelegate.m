@@ -2,13 +2,13 @@
 #include "GeneratedPluginRegistrant.h"
 @import UIKit;
 @import Firebase;
+#import "GoogleMaps/GoogleMaps.h"
 
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-//    [FIRApp configure];
-//    return YES;
+    [GMSServices provideAPIKey:@"Your Key"];
     [GeneratedPluginRegistrant registerWithRegistry:self];
     return [super application:application didFinishLaunchingWithOptions:launchOptions];
 }

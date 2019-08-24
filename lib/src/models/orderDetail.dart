@@ -1,5 +1,3 @@
-import '../models/product.dart';
-
 class OrderDetail{
   String _id;
   String _idOrder;

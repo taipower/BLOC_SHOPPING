@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../models/product.dart';
 import 'package:meta/meta.dart';
 import '../utils/widget_utils.dart';
-import 'package:cache_image/cache_image.dart';
+import 'dart:typed_data';
+import 'package:bloc_shopping/assets.dart';
 
 class ProductPoster extends StatelessWidget{
   ProductPoster({
@@ -12,6 +13,9 @@ class ProductPoster extends StatelessWidget{
 
   final Product product;
   final Size size;
+
+  Uint8List imageBytes;
+  String errorMsg;
 
   BoxDecoration _buildDecorations(){
     return const  BoxDecoration(
@@ -39,18 +43,14 @@ class ProductPoster extends StatelessWidget{
       return null;
     }
 
-    return CacheImage.firebase(
-      path: 'gs://shopping-ba750.appspot.com/' + product.imgFile,
-        placeholder: new Container(
-          padding: EdgeInsets.all(16.0),
-          color: Colors.grey[100],
-          child: new Center(
-            child: new Icon(Icons.add_a_photo,
-              color: Colors.white24,
-              size: 72.0,),
-          ),
-        )
-    );
+    return FadeInImage.assetNetwork(
+          placeholder: ImageAssets.transparentImage,
+          image: product.imgFile,
+          width: size?.width,
+          height: size?.height,
+          fadeInDuration: const Duration(milliseconds: 300),
+          fit: BoxFit.cover,
+        );
   }
 
   @override

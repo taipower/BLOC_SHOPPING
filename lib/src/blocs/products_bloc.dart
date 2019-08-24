@@ -16,8 +16,8 @@ class ProductBloc{
     return _repository.productList();
   }
 
-  Future<void> saveProduct(String name, int number, double price, String imgFile){
-    return _repository.saveProduct(name, number, price, imgFile);
+  Future<void> saveProduct(String name, int number, double price, String imgFile, double latitude, double longitude){
+    return _repository.saveProduct(name, number, price, imgFile, latitude, longitude);
   }
 
   Future<void> updateProduct(String id, String name, int number, double price, String imgFile){

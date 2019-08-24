@@ -18,8 +18,8 @@ class Repository {
   Future<QuerySnapshot> orderDetailList(String idOrder) =>
     _firestoreProvider.orderDetailList(idOrder);
   
-  Future<void> saveProduct(String name, int number, double price, String imgFile) =>
-    _firestoreProvider.saveProduct(name, number, price, imgFile);
+  Future<void> saveProduct(String name, int number, double price, String imgFile, double latitude, double longitude) =>
+    _firestoreProvider.saveProduct(name, number, price, imgFile, latitude, longitude);
   
   Future<void> updateProduct(String id, String name, int number, double price, String imgFile) =>
     _firestoreProvider.updateProduct(id, name, number, price, imgFile);

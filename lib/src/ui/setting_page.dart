@@ -58,7 +58,7 @@ class _SettingPageState extends State<SettingPage>{
     String id;
     snapshot.data.documents.forEach((doc){
       id = doc.documentID;
-      product = new Product(id,doc.data["name"], doc.data["number"], doc.data["price"], doc.data["imgFile"]);
+      product = new Product(id,doc.data["name"], doc.data["number"], doc.data["price"], doc.data["imgFile"], doc.data["latitude"], doc.data["longitude"]);
       listProduct.add(product);
     });
     return Scaffold(
