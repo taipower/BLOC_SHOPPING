@@ -16,21 +16,28 @@ For help getting started with Flutter, view our online
 - Order detail list
 - Add product for mock data
 - Cutoff stock
+- Product Location
 
 ## Dependencies
 - cupertino_icons: ^0.1.2
-- rxdart: ^0.21.0
+- rxdart: ^0.22.1
 - http: ^0.12.0+2
-- cloud_firestore: ^0.9.13+1
-- firebase_auth: ^0.8.1+1
+- cloud_firestore: ^0.12.9
+- firebase_auth: ^0.14.0+2
 - google_sign_in: ^4.0.1+3
-- cache_image: ^0.0.1
+- cache_image: ^0.0.3
 - numberpicker: "^0.1.0"
 - image_picker: ^0.6.0+8
-- path_provider: ^0.4.1
-- firebase_storage: ^1.0.2
-- flutter_native_image:
-    git: https://github.com/btastic/flutter_native_image.git
+- path_provider: ^1.2.0
+- firebase_storage: ^3.0.5
+- flutter_native_image: ^0.0.4
+- google_maps_flutter: ^0.5.17
+- location: ^2.3.5
+- progress_dialog: ^1.1.0+1
+- flutter_google_places: ^0.2.3
+- geocoder: ^0.2.1
+- geolocator: ^5.1.2
+- firebase_core: ^0.4.0+8
 
 ## Getting Run
 1. Setup Flutter
